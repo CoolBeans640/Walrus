@@ -1,0 +1,3 @@
+/Users/alexruffini/Documents/Personal Projects/Walrus/cmake-build-debug/CMakeFiles/Walrus.dir
+/Users/alexruffini/Documents/Personal Projects/Walrus/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/alexruffini/Documents/Personal Projects/Walrus/cmake-build-debug/CMakeFiles/rebuild_cache.dir
