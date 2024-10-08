@@ -9,7 +9,9 @@ add_subdirectory(ext/glm)
 
 add_executable(Walrus
     "src/main.cpp"
-        "ext/glad/src/glad.c"
+    "src/file.cpp"
+    "src/shader.c"
+    "ext/glad/src/glad.c"
 )
 
 target_link_libraries(Walrus PRIVATE glm glfw)
