@@ -1,8 +1,13 @@
 #include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "sw_render.hpp"
 
 /**
  * Starts GLFW and creates a new window
@@ -37,19 +42,27 @@ GLFWwindow* startUp(int width, int height) {
 /**
  * Main Function
  */
-int main(){
+int main() {
     // Starting GLFW
-    const int width = 1000;
-    const int height = 1000;
+    const int width = 1920;
+    const int height = 1080;
     GLFWwindow* window = startUp(width, height);
-    if(window == nullptr) {
+    if (window == nullptr) {
         printf("Setup failed\n");
         return 1;
     }
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    while(!glfwWindowShouldClose(window)) {
-        glClear(GL_COLOR_BUFFER_BIT);
+    // Allocate framebuffer
+    std::vector<char> framebuffer(width * height * 4);
+    sw_framebuffer fb = sw_framebuffer(width, height, framebuffer.data());
+    memset(framebuffer.data(), 0x7F, framebuffer.size());
+
+    unsigned int frame_num = 0;
+    while (!glfwWindowShouldClose(window)) {
+        frame_num++;
+        // Copy new software-rendered frame to screen
+        fb.draw(framebuffer.data());
+        memset(framebuffer.data(), frame_num % 100, framebuffer.size());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -58,4 +71,3 @@ int main(){
     glfwTerminate();
     return 0;
 }
-
