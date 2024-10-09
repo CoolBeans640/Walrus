@@ -11,7 +11,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "sw_render.hpp"
+#include "sw_framebuffer.hpp"
 
 // GLFW only provides a callback for this, and the only way to communicate the
 // new size back to the main program is via global variables. We use an atomic

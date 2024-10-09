@@ -11,7 +11,7 @@ add_subdirectory(ext/glm)
 
 add_executable(Walrus
     "src/main.cpp"
-    "src/sw_render.cpp"
+    "src/sw_framebuffer.cpp"
     "ext/glad/src/glad.c"
 )
 
