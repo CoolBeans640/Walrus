@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <glad/glad.h>
 
-#include "sw_render.hpp"
+#include "sw_framebuffer.hpp"
 
 sw_framebuffer::sw_framebuffer(unsigned int width, unsigned int height) {
     // Setup as a texture for OpenGL
