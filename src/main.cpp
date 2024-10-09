@@ -1,16 +1,31 @@
+/// @author Alex Ruffini
+/// @author Alex Hiatt
+
 #include <cstdio>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <atomic>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "sw_render.hpp"
 
+// GLFW only provides a callback for this, and the only way to communicate the
+// new size back to the main program is via global variables. We use an atomic
+// value in case the callback is triggered by another thread.
+std::atomic<int> gl_width = 1920;
+std::atomic<int> gl_height = 1080;
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    gl_width = width;
+    gl_height = height;
+    glViewport(0, 0, width, height);
+}
+
 /**
- * Starts GLFW and creates a new window
+ * Starts GLFW & OpenGL, creates a new window
  * @return Window pointer
  */
 GLFWwindow* startUp(int width, int height) {
@@ -34,38 +49,43 @@ GLFWwindow* startUp(int width, int height) {
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glViewport(0, 0, width, height);
-    glfwSwapInterval(1); // VSync
+    glfwSwapInterval(1); // Enable VSync
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
 }
 
-/**
- * Main Function
- */
 int main() {
+    // Dimensions for the software renderer (might vary from window size)
+    const int sw_width = gl_width;
+    const int sw_height = gl_height;
+
     // Starting GLFW
-    const int width = 1920;
-    const int height = 1080;
-    GLFWwindow* window = startUp(width, height);
+    GLFWwindow* window = startUp(sw_width, sw_height);
     if (window == nullptr) {
         printf("Setup failed\n");
         return 1;
     }
 
-    // Allocate framebuffer
-    std::vector<char> framebuffer(width * height * 4);
-    sw_framebuffer fb = sw_framebuffer(width, height, framebuffer.data());
-    memset(framebuffer.data(), 0x7F, framebuffer.size());
+    // This scope forces the software framebuffer to be destroyed before GLFW
+    // terminates & destroys the OpenGL context, so the resources can be
+    // deleted correctly.
+    {
+        // Allocate framebuffer & set up for blitting
+        std::vector<char> framebuffer(sw_width * sw_height * 4);
+        sw_framebuffer fb = sw_framebuffer(sw_width, sw_height);
 
-    unsigned int frame_num = 0;
-    while (!glfwWindowShouldClose(window)) {
-        frame_num++;
-        // Copy new software-rendered frame to screen
-        fb.draw(framebuffer.data());
-        memset(framebuffer.data(), frame_num % 100, framebuffer.size());
+        unsigned int frame_num = 0;
+        while (!glfwWindowShouldClose(window)) {
+            frame_num++;
+            // Copy new software-rendered frame to GPU to be rendered
+            memset(framebuffer.data(), frame_num % 100, framebuffer.size());
+            // Framebuffer blit needs viewport size to scale to window correctly
+            fb.blit_and_display(framebuffer.data(), gl_width, gl_height);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
     }
     glfwDestroyWindow(window);
     glfwTerminate();
