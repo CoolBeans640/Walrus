@@ -73,7 +73,7 @@ int main() {
     {
         // Allocate framebuffer & set up for blitting
         std::vector<char> framebuffer(sw_width * sw_height * 4);
-        sw_framebuffer fb = sw_framebuffer(sw_width, sw_height);
+        sw_framebuffer fb = sw_framebuffer(framebuffer.data(), sw_width, sw_height);
 
         unsigned int frame_num = 0;
         while (!glfwWindowShouldClose(window)) {

@@ -12,9 +12,10 @@ public:
     unsigned int texture_id;
     unsigned int fbo;
 
+    /// @param data Framebuffer texture data to render
     /// @param width Software framebuffer width
     /// @param height Software framebuffer height
-    sw_framebuffer(unsigned int width, unsigned int height);
+    sw_framebuffer(const char* data, unsigned int width, unsigned int height);
     ~sw_framebuffer();
 
     /// Uploads framebuffer to GPU texture, then copies it to the main framebuffer.

@@ -4,7 +4,7 @@
 
 #include "sw_framebuffer.hpp"
 
-sw_framebuffer::sw_framebuffer(unsigned int width, unsigned int height) {
+sw_framebuffer::sw_framebuffer(const char* data, unsigned int width, unsigned int height) {
     // Setup as a texture for OpenGL
     unsigned int texture_id = 0;
     glGenTextures(1, &texture_id);
@@ -14,7 +14,8 @@ sw_framebuffer::sw_framebuffer(unsigned int width, unsigned int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    // We skip on uploading texture data, since that happens before drawing.
+    // We have to upload a texture before attaching to a framebuffer object
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glBindTexture(GL_TEXTURE_2D, 0); // Unbind, to be polite :)
 
     // Attach texture to framebuffer, so that our texture is used as the color
@@ -23,9 +24,10 @@ sw_framebuffer::sw_framebuffer(unsigned int width, unsigned int height) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_id, 0);
 
     // Sanity check
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    const unsigned int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
         // I don't know of a way to communicate failure from a constructor...
-        printf("Failed to setup framebuffer\n");
+        printf("Failed to setup framebuffer (status %u)\n", status);
     }
     // Unbind for politeness, even though we're the only ones touching OpenGL
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
