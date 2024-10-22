@@ -5,8 +5,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+
 #include <vector>
-#include <atomic>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -16,8 +16,8 @@
 // GLFW only provides a callback for this, and the only way to communicate the
 // new size back to the main program is via global variables. We use an atomic
 // value in case the callback is triggered by another thread.
-std::atomic<int> gl_width = 1920;
-std::atomic<int> gl_height = 1080;
+int gl_width = 1920;
+int gl_height = 1080;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     gl_width = width;
     gl_height = height;
@@ -66,6 +66,7 @@ int main() {
         printf("Setup failed\n");
         return 1;
     }
+    glfwGetWindowSize(window, &gl_width, &gl_height);
 
     // This scope forces the software framebuffer to be destroyed before GLFW
     // terminates & destroys the OpenGL context, so the resources can be
@@ -77,6 +78,10 @@ int main() {
 
         unsigned int frame_num = 0;
         while (!glfwWindowShouldClose(window)) {
+            char title[256] = {0};
+            sprintf(title, "Walrus [%ux%u]", gl_width, gl_height);
+            glfwSetWindowTitle(window, title);
+
             frame_num++;
             // Copy new software-rendered frame to GPU to be rendered
             memset(framebuffer.data(), frame_num % 100, framebuffer.size());
