@@ -66,7 +66,10 @@ int main() {
         printf("Setup failed\n");
         return 1;
     }
-    glfwGetWindowSize(window, &gl_width, &gl_height);
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    gl_width = mode->width;
+    gl_height = mode->height;
+    glViewport(0, 0, gl_width, gl_height);
 
     // This scope forces the software framebuffer to be destroyed before GLFW
     // terminates & destroys the OpenGL context, so the resources can be
